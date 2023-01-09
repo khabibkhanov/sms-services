@@ -1,4 +1,4 @@
-const host = 'localhost'
+const host = 'http://192.168.0.87'
 const PORT = process.env.PORT || 5000
 
 const pgConfig = {

@@ -1,25 +1,35 @@
-const { fetch } = require('../../lib/postgres.js')
-const { VALIDATE } = require('./query.js')
+const { SendSms } = require('../../lib/send')
 
-const validate = async ({ user_number, user_password }) => {
-
+const validate = async ({user_number}, code) => {
 	try {
+		if (user_number.length != 12) {
+            throw {
+                status: 400,
+                message: 'Invalid phone number'
+            }
+        }
+
 		if (isNaN(user_number)) {
-			throw 'User number must be a number'
+			throw {
+                status: 400,
+                message: 'User number must be a number'
+            }
 		}
-		let user = await fetch(VALIDATE, user_number, user_password)
-		if (user) {
-			return user
-		} else {
-			throw 'wrong password or invalid number'			
+
+		const sending = await SendSms(user_number, code)
+
+        if (!sending) {
+            throw {
+                status: 400,
+				message: 'Invalid code'
+            }
 		}
+
+		return sending
+
 	} catch (error) {
 		return error
 	}
-    // if (user_password.length < 8) {
-    //     throw new Error('User password must be at least 8 characters long')
-    // }
-	
 }
 
 module.exports = {

@@ -5,6 +5,7 @@ const pool = new Pool(pgConfig)
 
 const fetch = async (sqlQuery, ...params) => {
 	const client = await pool.connect()
+	
 	try {
 		const { rows: [ row ] } = await client.query(sqlQuery, params.length ? params : null)
 		return row
