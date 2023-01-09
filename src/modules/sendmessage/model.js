@@ -8,6 +8,13 @@ const SendMessage = async ({reciever_number, sms_text, isOnline}) => {
 			throw 'User number must be a number'
 		}
 
+    if (reciever_number.length != 12) {
+      throw {
+          status: 400,
+          message: 'Invalid phone number'
+      }
+  }
+
     let userInfo = await fetch(GETUSERNUMBER, reciever_number)
 
     if (isOnline && userInfo) {
@@ -24,6 +31,14 @@ const SendMessage = async ({reciever_number, sms_text, isOnline}) => {
         }
     } else {
       const send = await SendSms(reciever_number, sms_text)
+
+      if (!send) {
+        throw {
+          status: 400,
+          message: 'Invalid code'
+        }
+      }
+
       return {
         success: true,
         status: send.status,
