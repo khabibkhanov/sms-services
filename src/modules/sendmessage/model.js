@@ -1,9 +1,14 @@
 const { fetch } = require('../../lib/postgres')
 const { GETUSERNUMBER, SENDMESSAGE } = require('./query')
 const { SendSms } = require('../../lib/send')
+const WebSocket = require('ws')
+const { verify } = require('../../lib/jwt')
 
-const SendMessage = async ({reciever_number, sms_text, isOnline}) => {
+const wss = new WebSocket.Server({ port: 8080 })
+
+const SendMessage = async ({reciever_number, sms_text}, token) => {
   try {
+
     if (isNaN(reciever_number)) {
 			throw 'User number must be a number'
 		}
@@ -17,18 +22,25 @@ const SendMessage = async ({reciever_number, sms_text, isOnline}) => {
 
     let userInfo = await fetch(GETUSERNUMBER, reciever_number)
 
-    if (isOnline && userInfo) {
+    if (token && userInfo) {
         await fetch(SENDMESSAGE, reciever_number, sms_text)
 
-        return {
-          success: true,
-          status: 200,
-          fromApplication: true,
-          data: {
-            number: reciever_number,
-            message: sms_text,
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            const data = {
+              success: true,
+              status: 200,
+              fromApplication: false,
+              data: {
+                number: reciever_number,
+                message: sms_text
+              }
+            } 
+            client.send(JSON.stringify(data))
           }
-        }
+        })
+
+        return 'successfully sent message'
     } else {
       const send = await SendSms(reciever_number, sms_text)
 

@@ -4,6 +4,7 @@ const { PORT, host } = require('./src/config')
 const cookie = require('cookie-parser')
 const app = express()
 
+
 app.use(express.json());
 
 // Use the express-session middleware to store session data
@@ -23,6 +24,7 @@ app.use( function (req, res, next)  {
 
 // load modules
 const modules = require('./src/modules')
+
 app.use( modules )
 
 

@@ -19,7 +19,6 @@ CREATE EXTENSION pgcrypto;
     INSERT INTO users (
         user_number
     ) VALUES 
-    ('998913574568'),
     ('998913574567'),
     ('998914574567');
 

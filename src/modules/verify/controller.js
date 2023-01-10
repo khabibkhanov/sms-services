@@ -1,4 +1,4 @@
-const { verify } = require("../../lib/jwt");
+const { verify, sign } = require("../../lib/jwt");
 const model = require('./model')
 
 const GET = async (req, res) => {
@@ -13,8 +13,10 @@ const POST = async (req, res) => {
 
     // Check if the user-entered code matches the stored code
     if (data.code === token.code && data.number === token.number) {
-        const smst = await model.SaveNumber(data.number)
-        res.send(smst)
+        const verifiedNumber = await model.SaveNumber(data.number)
+        res.clearCookie('token')
+        res.cookie('access_token', sign(verifiedNumber))
+        res.send(verifiedNumber)
     } else {
         res.status(401).send('invalid code')
     }
