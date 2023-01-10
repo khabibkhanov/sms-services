@@ -35,8 +35,4 @@ CREATE EXTENSION pgcrypto;
         sms_text
     ) VALUES 
     ('998914574567', 'hello server' ),
-    ('998913574568', 'hello world' );
-
-    INSERT INTO sms (reciever_number, sms_text)
-	VALUES 
-    ('998913574568', 'hello Borhter');
+    ('998913574567', 'hello world' );

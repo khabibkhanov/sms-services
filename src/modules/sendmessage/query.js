@@ -8,7 +8,17 @@ const GETUSERNUMBER =`
     WHERE user_number = $1;
 `
 
+const GETMESSAGES = `
+    SELECT (
+        sms_text, 
+        sms_created_at
+    )
+    FROM sms
+    WHERE reciever_number = $1
+`
+
 module.exports = {
 	SENDMESSAGE,
     GETUSERNUMBER,
+    GETMESSAGES
 }

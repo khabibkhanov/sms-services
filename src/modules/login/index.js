@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const {  POST } = require('./controller.js')
 
-router.route('/login')
+router.route('/api/login')
 	.post( POST )
 
 module.exports = router
