@@ -2,17 +2,17 @@ const model = require('./model.js')
   
 const GET = async (req, res) => {
   // Retrieve the messages from the database
-  let message = await model.getMessages(req?.cookies?.registration_token);
+  let message = await model.getMessages(req?.headers?.access_token);
 
   if(message) {
-    res.status(200).send(message || 'message');
+    res.status(200).send(message)
 	} else {
     res.status(400).send( 'something went wrong')
 	}
 } 
 
 const POST = async (req, res) => {
-  const message = await model.SendMessage(req.body, req?.cookies?.registration_token);
+  const message = await model.SendMessage(req.body);
 
   if (message) {
     res.status(200).send(message || 'message arrived successfully')

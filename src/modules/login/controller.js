@@ -10,10 +10,7 @@ const POST = async (req, res) => {
 		const token = jwt.sign(user, 'ProgramSoftSecretKey');
 		res.set('Authorization', token);
 
-		res.status(200).send({
-			token,
-			user
-		})
+		res.status(200).send('ok')
 	} else {
        res.status(400).send('err')
 	}

@@ -1,10 +1,6 @@
-const { verify, sign } = require("../../lib/jwt");
+const { sign } = require("../../lib/jwt");
 const model = require('./model')
 const jwt = require('jsonwebtoken')
-
-const GET = async (req, res) => {
-    console.log('get')
-}
 
 const POST = async (req, res) => {
     try {
@@ -18,18 +14,26 @@ const POST = async (req, res) => {
     }
 
     // Check if the user-entered code matches the stored code
-    if (data.code === token.code && data.number === token.number) {
-        const verifiedNumber = await model.SaveNumber(data.number, fcm_token)
-        res.status(200).send(verifiedNumber)
+    if (data.message === token.message && data.number === token.number) {
+        const verified = await model.SaveNumber(data.number, fcm_token)
+        res.set('access_token', sign(data.number));
+
+        // res.status(200).send(`${data.code} equeal to ${token.code}, ${data.number} and ${token.number}`)
+        res.status(200).send({
+            success: true,
+            message: 'Logged in successfully'
+        })
     } else {
         throw 'invalid number or code'
     }
     } catch (error) {
-        res.status(401).send(error)
+        res.status(401).send({
+            success: false,
+            message: error
+        })
     }
 };
 
 module.exports = {
-	POST,
-    GET
+	POST
 }

@@ -1,8 +1,10 @@
 const { fetch, fetchAll } = require('../../lib/postgres')
-const { GETUSERNUMBER, SENDMESSAGE, GETMESSAGES } = require('./query')
+const { GETUSER, SENDMESSAGE, GETMESSAGES } = require('./query')
 const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
 const admin = require('firebase-admin');
+const WebSocket = require('ws')
+const wss = new WebSocket.Server({ port: 8080 })
 
 admin.initializeApp({
   credential: admin.credential.cert(require('../../services/programmsoft-sms-service.json')),
@@ -11,12 +13,12 @@ admin.initializeApp({
 
 const getMessages = async (token) => {
   try {
-    const { user_number } = verify(token)
+    const user_number= verify(token)
 
-    let user = await fetchAll(GETMESSAGES, user_number)
-  
-    if (user.length) {
-      return user    
+    let messages = await fetchAll(GETMESSAGES, user_number)
+
+    if (messages.length) {
+      return messages
     } else {
       throw 'invalid token'
     }
@@ -25,46 +27,52 @@ const getMessages = async (token) => {
   }
 }
 
-const sendSmsFunction = async (number, sms_text) => {
+const sendSmsFunction = async (number, sms_text, sender) => {
   await SendSms(number, sms_text)
+
   return {
     success: true,
     status: 200,
     data: {
-      number: number, 
+      sender,
+      number,
+      sms_text 
     },
     message: 'Successfully sent message via SMS'
   }
 }
 
-const SendMessage = async ({number, sms_text}, Regstration_Token) => {
+const SendMessage = async ({number, sms_text, sender}) => {
   try {
     // fetch userinfo for the reciever number
-    let userInfo = await fetch(GETUSERNUMBER, number)
+    let userInfo = await fetch(GETUSER, number)
 
-    if (userInfo && Regstration_Token) {
+    if (userInfo) {
       // send message via webapi
-      await fetch(SENDMESSAGE, number, sms_text);
+      await fetch(SENDMESSAGE, number, sms_text, sender);
 
       const message = {
         notification: {
-          title: "New message received",
+          title: sender,
           body: sms_text
         },
         data: {
-          number: number,
-          sms_text: sms_text,
+          sender,
+          number,
+          sms_text,
         }
       }
 
       // notify the clients connected via FCM
-      const sendApplication = await admin.messaging().sendToDevice(Regstration_Token, message)
+      const sendApplication = await admin.messaging().sendToDevice(userInfo.fcm_token, message)
         .then(async (response) => { 
+
           if(response?.results[0].error) {
             // If Response token is not registered send sms to device
-            const sms = await sendSmsFunction(number, sms_text)
+            const sms = await sendSmsFunction(number, sms_text, sender)
             return sms
           }
+
           return {
             success: true,
             status: 200,
@@ -79,10 +87,25 @@ const SendMessage = async ({number, sms_text}, Regstration_Token) => {
           }
         });
 
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            const data = {
+              success: true,
+              status: 200,
+              data: {
+                number: number,
+                sender,
+                message: sms_text
+              }
+            } 
+            client.send(JSON.stringify(data))
+          }
+        })
+
         return sendApplication
     } else {
       // if token or userInfo not present send via SMS
-      const sms = await sendSmsFunction(number, sms_text)
+      const sms = await sendSmsFunction(number, sms_text, sender)
       return sms
     }
 

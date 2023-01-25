@@ -10,13 +10,13 @@ const SaveNumber = async (number, fcm_token) => {
     let userInfo = await fetch(VALIDATE, number, fcm_token)
     
     if (!userInfo) {
-      throw "cannot login "
+      throw "cannot login user"
     } else {
       return userInfo
     }
 
     } catch (error) {
-        return error
+      return error
     }
 }
 
