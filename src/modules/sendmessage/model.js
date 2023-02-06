@@ -46,11 +46,8 @@ const SendMessage = async ({number, sms_text, sender}) => {
   try {
     // fetch userinfo for the reciever number
     let userInfo = await fetch(GETUSER, number)
-
+    let fcmIsWorking = false
     if (userInfo) {
-      // send message via webapi
-      await fetch(SENDMESSAGE, number, sms_text, sender);
-
       const message = {
         notification: {
           title: sender,
@@ -68,10 +65,14 @@ const SendMessage = async ({number, sms_text, sender}) => {
         .then(async (response) => { 
 
           if(response?.results[0].error) {
+            fcmIsWorking = true
             // If Response token is not registered send sms to device
             const sms = await sendSmsFunction(number, sms_text, sender)
             return sms
           }
+
+          // send message via webapi
+          await fetch(SENDMESSAGE, number, sms_text, sender);
 
           return {
             success: true,
@@ -87,20 +88,22 @@ const SendMessage = async ({number, sms_text, sender}) => {
           }
         });
 
-        wss.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            const data = {
-              success: true,
-              status: 200,
-              data: {
-                number: number,
-                sender,
-                message: sms_text
-              }
-            } 
-            client.send(JSON.stringify(data))
-          }
-        })
+        if (!fcmIsWorking) {
+          wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              const data = {
+                success: true,
+                status: 200,
+                data: {
+                  number: number,
+                  sender,
+                  message: sms_text
+                }
+              } 
+              client.send(JSON.stringify(data))
+            }
+          })
+        }
 
         return sendApplication
     } else {
