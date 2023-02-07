@@ -16,7 +16,7 @@ CREATE TABLE users (
     fcm_token varchar(255) not null,
     user_created_at timestamptz default current_timestamp,
     user_updated_at timestamptz default null,
-    user_deleted_at timestamptz default null
+    user_deleted_at boolean default f
 );
 
 INSERT INTO users (
@@ -32,7 +32,7 @@ CREATE TABLE sms (
     sms_text text not null,
     sender varchar(16) not null,
     sms_created_at timestamptz default current_timestamp,
-    sms_deleted_at timestamptz default null
+    sms_deleted_at boolean default false
 );
 
 INSERT INTO sms (
@@ -42,3 +42,25 @@ INSERT INTO sms (
 ) VALUES    
 ('998914574567', 'notarius', 'hello server' ),
 ('998913574567', 'government', 'hello world' );
+
+UPDATE sms 
+    SET sms_deleted_at = true 
+    WHERE sms_id = 7 AND reciever_number = '998914574567'
+RETURNING sms_deleted_at;
+
+
+
+INSERT INTO sms (
+    reciever_number,
+    sender,
+    sms_text
+) VALUES    
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' ),
+('998913574568', 'government', 'hello world' );

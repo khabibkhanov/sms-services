@@ -1,13 +1,13 @@
 const router = require('express').Router()
-const { CheckEnteredNumber } = require('../../middlewares/checknumber.js')
-const {  GET, POST } = require('./controller.js')
+const {  GET, POST, DELETE } = require('./controller.js')
 
 router.route('/api/messages')
 	.get( GET )
 
-router.use(CheckEnteredNumber)
-
 router.route('/api/sendMessage')
 	.post( POST )
+
+router.route('/api/messages/:message_id')
+	.delete( DELETE )
 
 module.exports = router

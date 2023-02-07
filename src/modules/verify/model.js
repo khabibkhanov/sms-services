@@ -8,7 +8,7 @@ const SaveNumber = async (number, fcm_token) => {
 	}
   
     let userInfo = await fetch(VALIDATE, number, fcm_token)
-    
+
     if (!userInfo) {
       throw "cannot login user"
     } else {

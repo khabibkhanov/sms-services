@@ -1,5 +1,5 @@
 const { fetch, fetchAll } = require('../../lib/postgres')
-const { GETUSER, SENDMESSAGE, GETMESSAGES } = require('./query')
+const { GETUSER, SENDMESSAGE, GETMESSAGES, DELETEMESSAGE } = require('./query')
 const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
 const admin = require('firebase-admin');
@@ -17,13 +17,21 @@ const getMessages = async (token) => {
 
     let messages = await fetchAll(GETMESSAGES, user_number)
 
-    if (messages.length) {
-      return messages
+    if (messages) {
+      return {
+        status: 200,
+        success: true,
+        data: messages
+      }
     } else {
-      throw 'invalid token'
+      throw  'Invalid Token'
     }
   } catch (error) {
-    return error
+    return {
+      status: 400,
+      success: false,
+      data: error
+  }
   }
 }
 
@@ -42,11 +50,13 @@ const sendSmsFunction = async (number, sms_text, sender) => {
   }
 }
 
-const SendMessage = async ({number, sms_text, sender}) => {
+const sendMessage = async ({number, sms_text, sender}) => {
   try {
     // fetch userinfo for the reciever number
     let userInfo = await fetch(GETUSER, number)
     let fcmIsWorking = false
+    let sms_id = 0
+
     if (userInfo) {
       const message = {
         notification: {
@@ -72,12 +82,19 @@ const SendMessage = async ({number, sms_text, sender}) => {
           }
 
           // send message via webapi
-          await fetch(SENDMESSAGE, number, sms_text, sender);
+          sms_id = await fetch(SENDMESSAGE, number, sms_text, sender);
 
-          return {
-            success: true,
-            status: 200,
-            message: response
+          if (sms_id) {
+            return {
+              success: true,
+              status: 200,
+              message: {
+                sender,
+                number,
+                message_id: sms_id.sms_id,
+                sms_text,
+              }
+            }
           }
         })
         .catch((error) => {
@@ -87,7 +104,7 @@ const SendMessage = async ({number, sms_text, sender}) => {
             message: error || 'Error sending message via FCM:'
           }
         });
-
+  
         if (!fcmIsWorking) {
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -95,16 +112,16 @@ const SendMessage = async ({number, sms_text, sender}) => {
                 success: true,
                 status: 200,
                 data: {
-                  number: number,
                   sender,
+                  number,
+                  message_id: sms_id?.sms_id,
                   message: sms_text
                 }
-              } 
+              }
               client.send(JSON.stringify(data))
             }
           })
         }
-
         return sendApplication
     } else {
       // if token or userInfo not present send via SMS
@@ -117,7 +134,32 @@ const SendMessage = async ({number, sms_text, sender}) => {
   }
 }
 
+const deleteMessage = async (message_id, number) => {
+  try {
+    const user_number= verify(number)
+    sms_id = parseInt(message_id)
+    const isDeleted = await fetch(DELETEMESSAGE, sms_id, user_number)
+
+    if (isDeleted) {
+      return {
+        status: 200,
+        success: true,
+        data: isDeleted.case
+      }
+    } else {
+      throw {
+        status: 404,
+        success: false,
+        data: 'Message does not exist',
+      }
+    }
+  } catch (error) {
+    return error
+  }
+}
+
 module.exports = {
   getMessages,
-  SendMessage
+  sendMessage,
+  deleteMessage,
 }

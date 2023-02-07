@@ -1,14 +1,14 @@
 {
-  "name": "sms-service",
+  "name": "sms.meta-hi.uz",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "sms service provider for messaging services",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "ProgrammSoft",
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
