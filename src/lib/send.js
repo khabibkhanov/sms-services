@@ -1,16 +1,16 @@
 const request = require('request');
 
 const baseUrl = 'http://81.95.228.2:8080';
-const endpoint = '/sms_send.php';
+const endpoint = '/sms_send_code.php';
 
-const SendSms = async (number, message) => {
+const SendSms = async (number, message, sender = 'sms_service') => {
 
 	// Set the query parameters for the request
 	const params = {
-		action: 'smsl',
+		action: 'sms',
 		msisdn: number,
 		body: message,
-		id: 1063
+		distr_id: 1057
 	};
 	
 	// Set the options for the request
@@ -31,8 +31,14 @@ const SendSms = async (number, message) => {
 	});
 
 	return {
-		number,
-		message
+		success: true,
+		status: 200,
+		data: {
+		  sender,
+		  number,
+		  sms_text: message 
+		},
+		message: 'Successfully sent message via SMS'
 	}
 }
 
