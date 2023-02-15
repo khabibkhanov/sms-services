@@ -1,9 +1,9 @@
 const model = require('./model.js')
 const jwt = require('jsonwebtoken');
-const path = require('path');
 
 const POST = async (req, res) => {	
 try {
+	console.log(req.session.code);
 	req.session.code = Math.floor(Math.random() * 10000);
 	if (req.session.code < 1000) {
 	  req.session.code += 1000;

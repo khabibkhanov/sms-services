@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "rm -rf dist && mkdir dist && tsc"
   },
   "keywords": [],
   "author": "ProgrammSoft",
@@ -21,5 +22,14 @@
     "pg": "^8.8.0",
     "request": "^2.88.2",
     "ws": "^8.11.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khabibkhanov/sms-services.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khabibkhanov/sms-services/issues"
+  },
+  "homepage": "https://github.com/khabibkhanov/sms-services#readme"
 }
