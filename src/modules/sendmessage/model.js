@@ -4,8 +4,8 @@ const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
 const WebSocket = require('ws')
 const { firebaseAdmin } = require('../../config')
-const wss = new WebSocket.Server({ port: 8080 })
-
+const wss = new WebSocket(process.env.WSHOST)
+console.log(process.env.WSHOST);
 const getMessages = async (token) => {
   try {
     // Verify the token
