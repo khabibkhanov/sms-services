@@ -12,10 +12,12 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
                 message: 'Invalid phone number',
 				data: {},
             }
-        }
+        }	
+
+		// console.log(user_number);
 		// fetch userinfo for the reciever number
 		let userInfo = await fetch(GETUSERBYSECID, user_number, secure_id)
-
+		console.log('sada');
 		if (userInfo) {
 			const message = {
 				notification: {

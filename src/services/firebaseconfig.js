@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 module.exports = {
     type: process.env.FIRETYPE,
     project_id: process.env.FIREPROJECTID,
