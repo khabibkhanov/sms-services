@@ -1,7 +1,10 @@
 const express = require('express')
-const session = require('express-session');
 const app = express()
-
+const WebSocket = require('ws');
+const http = require('http')
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+console.log(WebSocket.OPEN);
 app.use(express.json());
 
 app.get('/', function(req, res) {
