@@ -18,7 +18,6 @@ const POST = async (req, res) => {
         if (data.message === token.message && data.number === token.number) {
             const verified = await model.SaveNumber(data.number, fcm_token, secure_id)
             res.set('access_token', sign(verified.user_number));
-            console.log(secure_id);
             res.status(200).send({
                 success: true,
                 message: 'Logged in successfully'

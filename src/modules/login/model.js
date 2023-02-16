@@ -14,10 +14,8 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
             }
         }	
 
-		// console.log(user_number);
 		// fetch userinfo for the reciever number
 		let userInfo = await fetch(GETUSERBYSECID, user_number, secure_id)
-		console.log('sada');
 		if (userInfo) {
 			const message = {
 				notification: {
@@ -35,13 +33,11 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
 			const sendApplication = await firebaseAdmin.messaging().sendToDevice(fcm_token, message)
 				.then(async (response) => {
 					if(response?.results[0].error) {
-						console.log(response.results[0].error);
 						fcmIsWorking = true
 						// If Response token is not registered send sms to device
 						const sms = await SendSms(user_number, sms_text, 'Sms Service')
 						return sms
 					}
-					console.log(response);
 					return {
 						success: true,
 						status: 200,

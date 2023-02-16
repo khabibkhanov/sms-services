@@ -4,7 +4,6 @@ const { pgConfig } = require('../config')
 const pool = new Pool(pgConfig)
 
 const fetch = async (sqlQuery, ...params) => {
-	console.log(pgConfig, process.env);
 	const client = await pool.connect()
 	
 	try {

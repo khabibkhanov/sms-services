@@ -8,7 +8,6 @@ const SaveNumber = async (number, fcm_token, secure_id) => {
 	}
   
   let userInfo = await fetch(VALIDATE, number, fcm_token, secure_id)
-    console.log(userInfo);
   if (!userInfo) {
     throw "cannot login user"
   } else {

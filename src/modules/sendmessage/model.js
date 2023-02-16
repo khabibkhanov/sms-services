@@ -2,10 +2,9 @@ const { fetch, fetchAll } = require('../../lib/postgres')
 const { GETUSER, SENDMESSAGE, GETMESSAGES, DELETEMESSAGE } = require('./query')
 const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
-const wss = require('../../../server')
-// const WebSocket = require('ws')
+const WebSocket = require('ws')
 const { firebaseAdmin } = require('../../config')
-// const wss = new WebSocket.Server({ port: 8080 })
+const wss = new WebSocket.Server({ port: 8080 })
 
 const getMessages = async (token) => {
   try {
