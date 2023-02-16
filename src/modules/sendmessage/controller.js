@@ -13,11 +13,10 @@ const GET = async (req, res) => {
         data: 'something went wrong'
     })
 	}
-} 
+}
 
 const POST = async (req, res) => {
-  const message = await model.sendMessage(req.body);
-
+  const message = await model.sendMessage(req.body, req.app.locals.websockets);
   if (message) {
     res.status(200).send(message || 'message arrived successfully')
   } else {

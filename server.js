@@ -1,20 +1,23 @@
-const express = require('express')
-// const session = require('express-session');
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+
 const app = express()
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
+// Pass the wss instance to locals
+app.locals.wss = wss;
+app.locals.websockets = {
+	wss,
+	WebSocket
+}
 app.use(express.json());
-
-// Use the express-session middleware to store session data
-// app.use(session({
-// 	secret: 'insmooniac',
-// 	resave: false,
-// 	saveUninitialized: true
-// }));
 
 app.use( function (req, res, next)  {
 	res.setHeader('Access-Control-Allow-Origin', '*')
 	res.setHeader('Access-Control-Allow-Headers', '*')
-	next()
+	next()	
 })
 
 app.get('/', function(req, res) {
@@ -22,9 +25,10 @@ app.get('/', function(req, res) {
 	res.send(JSON.stringify('SMS Service'))
 })
 
+
 // load modules
 const modules = require('./src/modules')
 
 app.use( modules )
 
-app.listen(process.env.PORT || 5000)
+server.listen(process.env.PORT || 5000)

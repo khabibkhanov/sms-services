@@ -2,9 +2,7 @@ const { fetch, fetchAll } = require('../../lib/postgres')
 const { GETUSER, SENDMESSAGE, GETMESSAGES, DELETEMESSAGE } = require('./query')
 const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
-const WebSocket = require('ws')
 const { firebaseAdmin } = require('../../config')
-const wss = new WebSocket.Server({ port: 8080 })
 
 const getMessages = async (token) => {
   try {
@@ -56,14 +54,14 @@ const getMessages = async (token) => {
   }
 };
 
-const sendMessage = async ({number, sms_text, sender}) => {
+const sendMessage = async ({number, sms_text, sender}, wss) => {
   try {
     // fetch userinfo for the reciever number
     let userInfo = await fetch(GETUSER, number)
     let fcmIsWorking = false
     let sms_id = 0
 
-
+    console.log('log',wss.wss);
     if (userInfo) {
       const message = {
         notification: {
@@ -119,9 +117,8 @@ const sendMessage = async ({number, sms_text, sender}) => {
 
         if (fcmIsWorking === false) {
 
-          console.log(wss.clients);
-          for (const client of wss.clients) {
-            if (client.readyState === WebSocket.OPEN) {
+          for (const client of wss.wss.clients) {
+            if (client.readyState === wss.WebSocket.OPEN) {
               const data = {
                 success: true,
                 status: 200,
@@ -147,6 +144,7 @@ const sendMessage = async ({number, sms_text, sender}) => {
     }
 
   } catch (error) {
+      console.log(error);
       return error
   }
 }

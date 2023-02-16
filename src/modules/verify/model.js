@@ -6,7 +6,7 @@ const SaveNumber = async (number, fcm_token, secure_id) => {
     if (isNaN(number)) {
 			throw 'User number must be a number'
 	}
-  
+
   let userInfo = await fetch(VALIDATE, number, fcm_token, secure_id)
   if (!userInfo) {
     throw "cannot login user"
