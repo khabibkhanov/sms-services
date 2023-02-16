@@ -1,15 +1,15 @@
 const express = require('express')
-const session = require('express-session');
+// const session = require('express-session');
 const app = express()
 
 app.use(express.json());
 
 // Use the express-session middleware to store session data
-app.use(session({
-	secret: 'insmooniac',
-	resave: false,
-	saveUninitialized: true
-}));
+// app.use(session({
+// 	secret: 'insmooniac',
+// 	resave: false,
+// 	saveUninitialized: true
+// }));
 
 app.use( function (req, res, next)  {
 	res.setHeader('Access-Control-Allow-Origin', '*')
