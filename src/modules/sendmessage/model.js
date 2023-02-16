@@ -61,7 +61,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
     let fcmIsWorking = false
     let sms_id = 0
 
-    console.log('log',wss.wss);
+    console.log('log',wss.ReconnectingWebSocket);
     if (userInfo) {
       const message = {
         notification: {
@@ -118,7 +118,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
         if (fcmIsWorking === false) {
 
           for (const client of wss.wss.clients) {
-            if (client.readyState === wss.WebSocket.OPEN) {
+            if (client.readyState === wss.ReconnectingWebSocket.OPEN) {
               const data = {
                 success: true,
                 status: 200,

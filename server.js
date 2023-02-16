@@ -1,16 +1,16 @@
 const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
+const ReconnectingWebSocket = require('ws');
 
 const app = express()
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new ReconnectingWebSocket.Server({ server });
+wss.reconnectInterval = 60000
 
 // Pass the wss instance to locals
-app.locals.wss = wss;
 app.locals.websockets = {
 	wss,
-	WebSocket
+	ReconnectingWebSocket
 }
 app.use(express.json());
 
