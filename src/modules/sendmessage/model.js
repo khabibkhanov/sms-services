@@ -4,6 +4,7 @@ const { SendSms } = require('../../lib/send')
 const { verify } = require('../../lib/jwt')
 const { firebaseAdmin } = require('../../config')
 
+// Define a function to get all messages for a given user
 const getMessages = async (token) => {
   try {
     // Verify the token
@@ -21,8 +22,10 @@ const getMessages = async (token) => {
         const { sms_id, sender, sms_text, sms_created_at } = messages[i];
 
         if (!groupedMessages[sender]) {
+          // If this is the first message from this sender, create an array to store the messages
           groupedMessages[sender] = [];
         }
+        // Add the message to the array for the sender
         groupedMessages[sender].push({
           sms_id,
           sms_text,
@@ -43,9 +46,11 @@ const getMessages = async (token) => {
         data: groupedMessagesArray
       };
     } else {
+      // If no messages were found for the user, return an error message
       throw 'Invalid Token';
     }
   } catch (error) {
+    // If there was an error, return an error message
     return {
       status: 400,
       success: false,
@@ -54,15 +59,18 @@ const getMessages = async (token) => {
   }
 };
 
+// This function sends a message to the specified number, using FCM if possible
+// If FCM is not available or fails, it falls back to sending an SMS
 const sendMessage = async ({number, sms_text, sender}, wss) => {
   try {
-    // fetch userinfo for the reciever number
+    // Fetch the user info for the receiver number
     let userInfo = await fetch(GETUSER, number)
     let fcmIsWorking = false
     let sms_id = 0
 
-    console.log('log',wss.ReconnectingWebSocket);
+    // If the user info was found, attempt to send the message via FCM
     if (userInfo) {
+      // Set up the message object for FCM
       const message = {
         notification: {
           title: sender,
@@ -75,21 +83,23 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
         }
       }
 
-      // notify the clients connected via FCM
+      // Send the message via FCM
       const sendApplication = await firebaseAdmin.messaging().sendToDevice(userInfo.fcm_token, message)
         .then(async (response) => { 
 
+          // If the FCM response contains an error, FCM is not working or the token is not registered
           if(response?.results[0].error) {
             fcmIsWorking = true
-            // If Response token is not registered send sms to device
+            // Fall back to sending an SMS
             const sms = await SendSms(number, sms_text, sender)
             return sms
           }
 
-          // send message via webapi
+          // If the message was sent successfully via FCM, record it in the database
           sms_id = await fetch(SENDMESSAGE, number, sms_text, sender);
 
           if (sms_id.sms_id) {
+            // Return a success response
             return {
               success: true,
               status: 200,
@@ -101,12 +111,13 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
               message: 'message successfully sent via application'
             }
           } else {
-            // If Response token is not registered send sms to device
+            // Fall back to sending an SMS
             const sms = await SendSms(number, sms_text, sender)
             return sms
           }
         })
         .catch((error) => {
+          // If there was an error with FCM, throw an error response
           throw {
             success: false,
             status: 401,
@@ -115,6 +126,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
           }
         });
 
+        // If FCM was not working, broadcast the message via WebSocket
         if (fcmIsWorking === false) {
 
           for (const client of wss.wss.clients) {
@@ -135,10 +147,10 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
             }
           }
         }
-        // console.log(sendApplication);
+
         return sendApplication
     } else {
-      // if token or userInfo not present send via SMS
+      // If user info is not present, fall back to sending an SMS
       const sms = await SendSms(number, sms_text, sender)
       return sms
     }
@@ -149,12 +161,17 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
   }
 }
 
+// This function deletes a message from the database
 const deleteMessage = async (message_id, number) => {
   try {
+    // Verify the token
     const user_number= verify(number)
+    // Parse the message ID into an integer
     sms_id = parseInt(message_id)
+    // Delete the message from the database
     const isDeleted = await fetch(DELETEMESSAGE, sms_id, user_number)
 
+    // If the message is successfully deleted from the database, return a success response
     if (isDeleted) {
       return {
         status: 200,
@@ -163,20 +180,23 @@ const deleteMessage = async (message_id, number) => {
         data: {}
       }
     } else {
+      // If the message does not exist, throw a 404 error
       throw {
         status: 404,
         success: false,
         data: {},
         message: 'Message does not exist',
       }
-    }
+    } 
   } catch (error) {
+  // If an error occurs, return the error
     return error
   }
 }
-
+      
+// Export the functions for use in other parts of the application
 module.exports = {
   getMessages,
   sendMessage,
-  deleteMessage,  
+  deleteMessage,
 }

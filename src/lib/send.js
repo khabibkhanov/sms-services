@@ -1,35 +1,38 @@
+// Import the `request` library for making HTTP requests
 const request = require('request');
 
-const baseUrl = 'http://81.95.228.2:8080';
-const endpoint = '/sms_send_code.php';
+// Set the base URL and endpoint for the SMS service
+const baseUrl = process.env.SMSURL;
+const endpoint = process.env.SMSENDPOINT;
 
+// Define an async function for sending an SMS message
 const SendSms = async (number, message, sender = 'sms_service') => {
-
 	// Set the query parameters for the request
 	const params = {
-		action: 'sms',
+		action: process.env.SMSACTION,
 		msisdn: number,
 		body: message,
-		distr_id: 1057
+		distr_id: process.env.SMSDISTRID
 	};
 	
-	// Set the options for the request
+	// Set the options for the request, including the URL and query parameters
 	const options = {
 		url: baseUrl + endpoint,
 		qs: params
 	};
 
-	// Send the request to the endpoint
+	// Send the request to the SMS service endpoint
 	await request(options, (error, response, body) => {
 		if (error) {
-			// Handle any error that occurred
-			throw 'Message cannot be sent'
+			// If there was an error, throw an exception with a message indicating that the message could not be sent
+			throw 'Message cannot be sent';
 		} else {
-			// Handle the response from the endpoint
-			return body
+			// If there was no error, the response body should contain a success message or error message, which should be handled by the calling function
+			return body;
 		}
 	});
 
+	// Return a success object with the sender, phone number, and SMS text data
 	return {
 		success: true,
 		status: 200,
@@ -39,9 +42,10 @@ const SendSms = async (number, message, sender = 'sms_service') => {
 		  sms_text: message 
 		},
 		message: 'Successfully sent message via SMS'
-	}
-}
+	};
+};
 
+// Export the `SendSms` function for use in other modules
 module.exports = {
     SendSms
 };

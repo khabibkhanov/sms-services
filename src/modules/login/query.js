@@ -1,3 +1,4 @@
+// This query fetches the user_number from the database for a given secure_token
 const GETUSERBYSECID =`
     SELECT user_number
     FROM users

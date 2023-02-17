@@ -14,8 +14,10 @@ const pgConfig = {
 	
 }
 
+const firebaseconfig = JSON.parse(process.env.FIREBASECONFIG)
+
 const firebaseAdmin = admin.initializeApp({
-	credential: admin.credential.cert(require('./services/programmsoft-sms-service.json')),
+	credential: admin.credential.cert(firebaseconfig),
 	databaseURL: process.env.FIREDATABASE
 });
 
