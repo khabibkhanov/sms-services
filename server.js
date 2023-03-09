@@ -2,7 +2,8 @@
 const express = require('express'); // Express is a popular web framework for Node.js
 const http = require('http'); // The HTTP module is built-in to Node.js and provides functionality for creating a basic HTTP server
 const ReconnectingWebSocket = require('ws'); // A WebSocket library that provides automatic reconnection in case of connection failures
-
+const winston = require('winston');
+const expressWinston = require('express-winston');
 // Create an instance of the Express app
 const app = express();
 
@@ -30,6 +31,22 @@ app.use(function (req, res, next) {
 	res.setHeader('Access-Control-Allow-Headers', '*');
 	next();
 });
+
+// set up request logger middleware using Winston
+app.use(expressWinston.logger({
+	transports: [
+	  new winston.transports.Console(),
+	  new winston.transports.File({ filename: 'logs/access.log' })
+	],
+	format: winston.format.combine(
+	  winston.format.colorize(),
+	  winston.format.json()
+	),
+	meta: true,
+	msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
+	expressFormat: true,
+	colorize: true,
+  }));
 
 // Create a simple HTTP route that returns a JSON response with a message
 app.get('/', function(req, res) {

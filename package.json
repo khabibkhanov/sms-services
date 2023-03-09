@@ -15,12 +15,14 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "express-winston": "^4.2.0",
     "firebase-admin": "^11.4.1",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.0",
     "path": "^0.12.7",
     "pg": "^8.8.0",
     "request": "^2.88.2",
+    "winston": "^3.8.2",
     "ws": "^8.11.0"
   },
   "repository": {
