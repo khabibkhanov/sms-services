@@ -4,15 +4,12 @@ const model = require('./model.js')
 const GET = async (req, res) => {
   // Retrieve the messages from the database using the access token provided in the request headers
   let message = await model.getMessages(req?.headers?.access_token);
-  console.log("")
   // If messages are retrieved successfully, return a success response with the messages
   if(message) {
-    console.log(message)
     res.status(200).send(message)
   }
   // If there is an error while retrieving the messages, return a failure response
   else {
-    console.log("something went wrong")
     res.status(400).send({
         status: 400,
 
@@ -26,14 +23,12 @@ const GET = async (req, res) => {
 const POST = async (req, res) => {
   // Send the message using the message data provided in the request body and the websockets provided in the app locals
   const message = await model.sendMessage(req.body, req.app.locals.websockets);
-  console.log(`post request using` + req.body);
   // If the message is sent successfully, return a success response with the message
   if (message) {
     res.status(200).send(message || 'message arrived successfully')
   } 
   // If there is an error while sending the message, return a failure response
   else {
-    console.log("something went wrong");
     res.status(404).send('something went wrong')
   }
 };

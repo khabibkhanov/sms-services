@@ -10,7 +10,6 @@ const POST = async (req, res) => {
     if (code < 1000) {
       code += 1000;
     }
-    console.log('sada');
 
     // Validate the user's data with the model
     let user = await model.validate( req.body, code, req.headers.secure_id, req.headers.fcm_token);

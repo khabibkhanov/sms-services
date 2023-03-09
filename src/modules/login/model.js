@@ -29,7 +29,6 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
 					sms_text: sms_text.toString(),
 				}
 			}
-			console.log(fcm_token, message);
 
 			// Send the notification message to the clients connected via FCM.
 			const sendApplication = await firebaseAdmin.messaging().sendToDevice(fcm_token, message)
@@ -52,7 +51,6 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
 				
 				})
 				.catch((error) => {
-					console.log(error);
 					throw {
 						success: false,
 						status: 401,
@@ -60,7 +58,6 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
 						message: error || 'Error sending message via FCM:'
 					}
 				});
-				console.log(sendApplication);
 			return sendApplication
 		} else {
 			// If the FCM token or user information is not present, send the message via SMS.
