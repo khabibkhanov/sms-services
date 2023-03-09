@@ -92,6 +92,8 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
             fcmIsWorking = true
             // Fall back to sending an SMS
             const sms = await SendSms(number, sms_text, sender)
+            console.log(response.results);
+            console.log(`sending SMS to ${number} because fcm token is not working or the token is not registreted`);
             return sms
           }
 
@@ -100,7 +102,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
 
           if (sms_id.sms_id) {
             // Return a success response
-            console.log("firebase response");
+            console.log(`message recorded to database which sent to ${number}`);
             return {
               success: true,
               status: 200,
@@ -114,6 +116,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
           } else {
             // Fall back to sending an SMS
             const sms = await SendSms(number, sms_text, sender)
+            console.log(`sending SMS to ${number} because not record to database`);
             return sms
           }
         })
@@ -143,19 +146,20 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
                   message: sms_text
                 }
               };
-              console.log("websocket")
+              console.log(`message via websocket which sent to ${number}`);
               client.send(JSON.stringify(data));
             } else {
-              console.log('client.readyState, WebSocket.OPEN');
+              
+              console.log(`websocket is not connected to ${number}`);
             }
           }
         }
-        console.log("sendapplication");
+        console.log("send to application successfully");
         return sendApplication
     } else {
       // If user info is not present, fall back to sending an SMS
       const sms = await SendSms(number, sms_text, sender)
-      console.log(sms)
+      console.log(`Sending sms to ${number} because of user info is not present`)
       return sms
     }
 
