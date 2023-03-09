@@ -147,7 +147,6 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
             }
           }
         }
-        console.log(sendApplication)
         return sendApplication
     } else {
       // If user info is not present, fall back to sending an SMS

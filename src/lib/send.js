@@ -31,7 +31,7 @@ const SendSms = async (number, message, sender = 'sms_service') => {
 			return body;
 		}
 	});
-
+	console.log("sms arrived to ", sender);
 	// Return a success object with the sender, phone number, and SMS text data
 	return {
 		success: true,

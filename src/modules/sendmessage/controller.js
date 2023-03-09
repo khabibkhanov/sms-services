@@ -7,6 +7,7 @@ const GET = async (req, res) => {
 
   // If messages are retrieved successfully, return a success response with the messages
   if(message) {
+    console.log(message)
     res.status(200).send(message)
   }
   // If there is an error while retrieving the messages, return a failure response
