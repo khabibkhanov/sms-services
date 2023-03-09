@@ -100,6 +100,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
 
           if (sms_id.sms_id) {
             // Return a success response
+            console.log("firebase response");
             return {
               success: true,
               status: 200,
@@ -118,6 +119,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
         })
         .catch((error) => {
           // If there was an error with FCM, throw an error response
+          console.log("firebase sending error: " + error)
           throw {
             success: false,
             status: 401,
@@ -141,12 +143,14 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
                   message: sms_text
                 }
               };
+              console.log("websocket")
               client.send(JSON.stringify(data));
             } else {
               console.log('client.readyState, WebSocket.OPEN');
             }
           }
         }
+        console.log("sendapplication");
         return sendApplication
     } else {
       // If user info is not present, fall back to sending an SMS

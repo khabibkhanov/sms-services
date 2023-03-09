@@ -15,6 +15,7 @@ const GET = async (req, res) => {
     console.log("something went wrong")
     res.status(400).send({
         status: 400,
+        
         success: false,
         data: 'something went wrong'
     })
