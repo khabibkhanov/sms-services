@@ -11,6 +11,7 @@ const GET = async (req, res) => {
   }
   // If there is an error while retrieving the messages, return a failure response
   else {
+    console.log("something went wrong")
     res.status(400).send({
         status: 400,
         success: false,
@@ -30,6 +31,7 @@ const POST = async (req, res) => {
   } 
   // If there is an error while sending the message, return a failure response
   else {
+    console.log("something went wrong");
     res.status(404).send('something went wrong')
   }
 };
