@@ -85,8 +85,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
 
       // Send the message via FCM
       const sendApplication = await firebaseAdmin.messaging().sendToDevice(userInfo.fcm_token, message)
-        .then(async (response) => { 
-
+        .then(async (response) => {
           // If the FCM response contains an error, FCM is not working or the token is not registered
           if(response?.results[0].error) {
             fcmIsWorking = true

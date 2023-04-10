@@ -13,7 +13,7 @@ const validate = async ({user_number}, sms_text, secure_id, fcm_token) => {
                 message: 'Invalid phone number',
 				data: {},
             }
-        }	
+		}
 
 		// fetch userinfo for the reciever number
 		let userInfo = await fetch(GETUSERBYSECID, user_number, secure_id) // Fetch user information from the database using the PostgreSQL query.

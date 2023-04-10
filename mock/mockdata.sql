@@ -1,5 +1,4 @@
 INSERT INTO users (
-INSERT INTO users (
     user_number
 ) VALUES 
 ('998913574568'),

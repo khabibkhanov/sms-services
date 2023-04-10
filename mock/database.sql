@@ -7,7 +7,6 @@ CREATE EXTENSION pgcrypto;
 */
 
 DROP TABLE sms;
-
 DROP TABLE users;
 
 CREATE TABLE users (
