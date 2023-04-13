@@ -12,7 +12,7 @@ const getMessages = async (token) => {
 
     // Get all messages for the user
     let messages = await fetchAll(GETMESSAGES, user_number);
-
+    
     if (messages) {
       // Create an object to store the messages grouped by sender
       const groupedMessages = {};
@@ -102,7 +102,8 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
             return {
               success: true,
               status: 200,
-              data: {  sender,
+              data: {
+                sender,
                 number,
                 message_id: sms_id.sms_id,
                 sms_text,

@@ -44,7 +44,35 @@ const SendSms = async (number, message, sender = 'sms_service') => {
 	};
 };
 
+const sendNumberToSmsBase = async (number) => {
+	try {
+		const params = {
+			action: 'add',
+			msisdn: number
+		};
+		
+		const options = {
+			url: baseUrl + endpoint,
+			qs: params
+		};
+
+		const log = await request(options, (error, response) => {
+			if (error) {
+				throw error
+			} else  if (response?.body == 'ok') {
+				return response.body
+			}
+		})
+
+		return log
+	} catch (error) {
+		return error || 'error save to sms database'
+	}
+
+}
+
 // Export the `SendSms` function for use in other modules
 module.exports = {
-    SendSms
+    SendSms,
+	sendNumberToSmsBase
 };

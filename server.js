@@ -51,7 +51,7 @@ app.use(expressWinston.logger({
 // Create a simple HTTP route that returns a JSON response with a message
 app.get('/', function(req, res) {
 	res.set('Content-Type', 'application/json');
-	res.send(JSON.stringify('SMS Service'));
+	res.send(JSON.stringify('SMS Service is working'));
 });
 
 // Load external modules for handling various routes and functionality
