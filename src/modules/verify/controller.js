@@ -17,10 +17,10 @@ const POST = async (req, res) => { // Defining an asynchronous function 'POST' t
         // Check if the user-entered code matches the stored code
         if (data.message === token.message && data.number === token.number) { // Comparing the message and number in 'data' with the corresponding fields in the JWT token
             const verified = await model.SaveNumber(data.number, fcm_token, secure_id) // Calling the 'SaveNumber' function from the 'model' module with the provided parameters and storing the result in 'verified' variable
-            // res.set('access_token', sign(verified.user_number)); // Setting the 'access_token' header in the response with the signed user number
+            res.set('access_token', sign(verified.user_number)); // Setting the 'access_token' header in the response with the signed user number
             res.status(200).send({ // Sending a successful response with a status code of 200 and a JSON object as the body
                 success: true,
-                message: 'Number successfully signed in'
+                message: 'Logged in successfully'
             })
         } else {
             throw 'invalid number or code' // Throwing an error if the message or number in 'data' do not match the corresponding fields in the JWT token

@@ -59,4 +59,4 @@ const modules = require('./src/modules');
 app.use(modules);
 
 // Start the HTTP server, listening on the specified port (or defaulting to port 5000)
-server.listen(process.env.PORT || 5000);
+server.listen(process.env.PORT);
