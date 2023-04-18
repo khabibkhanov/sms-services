@@ -5,13 +5,13 @@ const jwt = require('jsonwebtoken') // Importing the 'jsonwebtoken' library
 const POST = async (req, res) => { // Defining an asynchronous function 'POST' that takes two parameters, a request and a response
     try {
         // Get the user-entered code from the form cookies and return it as a string in the form data
-        const token = jwt.verify( req.headers.authorization, 'ProgramSoftSecretKey'); // Verifying the JWT token and storing it in 'token' variable
+        const token = jwt.verify( req.headers.Authorization, 'ProgramSoftSecretKey'); // Verifying the JWT token and storing it in 'token' variable
         const fcm_token = req.headers.fcm_token // Extracting the FCM token from the request headers and storing it in 'fcm_token' variable
         const secure_id = req.headers.secure_id // Extracting the secure ID from the request headers and storing it in 'secure_id' variable
         const data = req.body // Extracting the request body and storing it in 'data' variable
-
+        console.log(fcm_token, secure_id, req.headers.Authorization);
         if (!fcm_token || !secure_id) { // Checking if the FCM token and secure ID are present in the request headers
-            throw 'regstration token is not found' // Throwing an error if either the FCM token or the secure ID is missing
+            throw 'regstration token is not found ' + secure_id + ' ' + fcm_token // Throwing an error if either the FCM token or the secure ID is missing
         }
 
         // Check if the user-entered code matches the stored code

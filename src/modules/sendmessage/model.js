@@ -90,7 +90,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
           if(response?.results[0].error) {
             fcmIsWorking = true
             // Fall back to sending an SMS
-            throw 'FCM response contains an error: ' + response.results[0].error
+            throw 'FCM is not working or the token is not registered: ' + response.results[0].error
           }
 
           // If the message was sent successfully via FCM, record it in the database
@@ -111,12 +111,12 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
             }
           } else {
             // Fall back to sending an SMS
-            throw 'Message not sent: ' + sms_id
+            throw 'Error while sending message or recording it to database: ' + sms_id
           }
         })
         .catch((error) => {
           // If there was an error with FCM, throw an error response
-          throw 'Error sending message via FCM:' + error
+          throw error
         });
 
         // If FCM was not working, broadcast the message via WebSocket
@@ -136,14 +136,14 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
               };
               client.send(JSON.stringify(data));
             } else {
-              throw `websocket is not connected to ${number}`
+              throw `Error while connect to websocket: ${number}`
             }
           }
         }
         return sendApplication
     } else {
       // If user info is not present, fall back to sending an SMS
-      throw 'user is not find '
+      throw 'user doesnt exist '
     }
 
   } catch (error) {
@@ -151,7 +151,7 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
         success: false,
         status: 401,
         data: {},
-        message: error || 'Error sending message via FCM:'
+        error: error || 'Error sending message via FCM'
       }
   }
 }
