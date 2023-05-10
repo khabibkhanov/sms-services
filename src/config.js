@@ -1,5 +1,4 @@
-const dotenv = require('dotenv').config();
-const host = process.env.HOST || 'localhost'
+require('dotenv').config();
 
 const PORT = process.env.PORT || 5000
 const admin = require('firebase-admin');
@@ -33,6 +32,5 @@ const firebaseAdmin = admin.initializeApp({
 module.exports = { 
 	pgConfig,
 	PORT,
-	host,
 	firebaseAdmin
 }

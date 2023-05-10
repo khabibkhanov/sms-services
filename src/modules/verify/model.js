@@ -8,15 +8,14 @@ const SaveNumber = async (number, fcm_token, secure_id) => { // Defining an asyn
 			throw 'User number must be a number' // Throwing an error if 'number' is not a valid number
 	  }
     let userInfo = await fetch(VALIDATE, number, fcm_token, secure_id) // Executing the 'VALIDATE' query using the 'fetch' function and storing the result in 'userInfo' variable
-    console.log(userinfo);
     if (!userInfo) { // Checking if 'userInfo' is falsy
-      throw "cannot login user" // Throwing an error if 'userInfo' is falsy
+      return "cannot login user" // Throwing an error if 'userInfo' is falsy
     } else {
-      await sendNumberToSmsBase(number)
-      return userInfo
+      // const isAdd = await sendNumberToSmsBase(number)
+      return 'isAdd'
     }
   } catch (error) { // Catching any errors thrown by the try block
-    return error|| "error "// Returning the error object
+    return error || "error "// Returning the error object
   }
 }
 

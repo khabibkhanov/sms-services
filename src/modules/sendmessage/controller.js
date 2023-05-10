@@ -1,9 +1,13 @@
 const model = require('./model.js')
+const { verify } = require('../../lib/jwt.js');
 
 // GET request handler for retrieving messages
 const GET = async (req, res) => {
+    const vtoken = verify(req?.headers?.accesstoken)
+    
   // Retrieve the messages from the database using the access token provided in the request headers
-  let message = await model.getMessages(req?.headers?.access_token);
+  let message = await model.getMessages(vtoken);
+  
   // If messages are retrieved successfully, return a success response with the messages
   if(message) {
     res.status(200).send(message)
@@ -12,9 +16,8 @@ const GET = async (req, res) => {
   else {
     res.status(400).send({
         status: 400,
-
         success: false,
-        data: 'something went wrong'
+        data: req.headers
     })
   }
 }

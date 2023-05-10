@@ -1,6 +1,7 @@
 // Import required modules
+const { sign } = require('../../lib/jwt.js');
 const model = require('./model.js')
-const jwt = require('jsonwebtoken');
+require("dotenv").config()
 
 // Define the POST request handler function
 const POST = async (req, res) => {	
@@ -12,11 +13,11 @@ const POST = async (req, res) => {
     }
 
     // Validate the user's data with the model
-    let user = await model.validate( req.body, code, req.headers.secure_id, req.headers.fcm_token);
+    let user = await model.validate( req.body, code, req.headers.secureid, req.headers.fcmtoken );
 
     // If the user's data is valid, create a JSON Web Token (JWT) and send it to the user along with a 200 status code and the user's data
     if(user.data) {
-      const token = jwt.sign({number: user.data.number, message: user.data.sms_text, secure_id: req.headers.secure_id}, 'ProgramSoftSecretKey');
+      const token = sign({number: user.data.number, message: user.data.sms_text, secure_id: req.headers.secureid});
       res.set('Authorization', token);
       res.status(200).send(user);
     } 

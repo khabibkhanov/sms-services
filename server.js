@@ -1,25 +1,21 @@
-// Import necessary modules
-const express = require('express'); // Express is a popular web framework for Node.js
-const http = require('http'); // The HTTP module is built-in to Node.js and provides functionality for creating a basic HTTP server
-const ReconnectingWebSocket = require('ws'); // A WebSocket library that provides automatic reconnection in case of connection failures
+const express = require('express');
+const ws = require('ws');
 const winston = require('winston');
 const expressWinston = require('express-winston');
-// Create an instance of the Express app
+
 const app = express();
 
-// Create an HTTP server using the Express app
-const server = http.createServer(app);
+// Create an instance of the Express app
+const server = app.listen(process.env.PORT || 35000, () => {
+  console.log(`Express app listening on port ${process.env.PORT || 35000}`);
+});
 
-// Create a new WebSocket server using the HTTP server and the ReconnectingWebSocket library
-const wss = new ReconnectingWebSocket.Server({ server });
+// Create a new WebSocket server using the 'noServer' option
+const wss = new ws.Server({ noServer: true });
 
-// Set the reconnect interval to 60 seconds (in case of connection failures)
-wss.reconnectInterval = 60000;
-
-// Pass the wss instance and ReconnectingWebSocket library to the app.locals object, so they can be accessed by other modules
+// Pass the wss instance to the app.locals object, so it can be accessed by other modules
 app.locals.websockets = {
-	wss,
-	ReconnectingWebSocket
+  wss,
 };
 
 // Use the built-in Express middleware for parsing JSON data
@@ -27,36 +23,63 @@ app.use(express.json());
 
 // Set CORS headers to allow cross-origin requests from any origin and any headers
 app.use(function (req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Headers', '*');
-	next();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  next();
 });
 
-// set up request logger middleware using Winston
+// Set up request logger middleware using Winston
 app.use(expressWinston.logger({
-	transports: [
-	  new winston.transports.Console(),
-	  new winston.transports.File({ filename: 'logs/access.log' })
-	],
-	format: winston.format.combine(
-	  winston.format.colorize(),
-	  winston.format.json()
-	),
-	meta: true,
-	msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
-	expressFormat: true,
-	colorize: true,
-  }));
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'logs/access.log' }),
+  ],
+  format: winston.format.combine(winston.format.colorize(), winston.format.json()),
+  meta: true,
+  msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
+  expressFormat: true,
+  colorize: true,
+}));
 
 // Create a simple HTTP route that returns a JSON response with a message
-app.get('/', function(req, res) {
-	res.set('Content-Type', 'application/json');
-	res.send(JSON.stringify('SMS Service is working'));
+app.get('/', function (req, res) {
+  res.set('Content-Type', 'application/json');
+  res.send(JSON.stringify('SMS Service is working'));
 });
 
 // Load external modules for handling various routes and functionality
 const modules = require('./src/modules');
 app.use(modules);
 
-// Start the HTTP server, listening on the specified port (or defaulting to port 5000)
-server.listen(process.env.PORT);
+// Override the default console log method to use a Winston logger that logs to a file
+console.log = function () {
+  const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(info => {
+        return `${info.timestamp} - ${info.message}`;
+      })
+    ),
+    transports: [
+      new winston.transports.File({ filename: 'logs/console.log' }),
+    ],
+  });
+
+  logger.info.apply(logger, arguments);
+}
+
+// Handle the upgrade process for WebSocket communication
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, socket => {
+    wss.emit('connection', socket, request);
+  });
+});
+
+// Log when the WebSocket server is listening
+wss.on('listening', () => {
+  console.log(`WebSocket server listening on port ${process.env.PORT || 35000}`);
+});
+wss.on('error', error => {
+  console.error(`WebSocket server error: ${error}`);
+});
