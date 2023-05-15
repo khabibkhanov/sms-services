@@ -22,7 +22,7 @@ const POST = async (req, res) => { // Defining an asynchronous function 'POST' t
                     message: 'Logged in successfully'
                 })
             } else {
-                throw   
+                throw   verified + 'Error'
 
             }
            

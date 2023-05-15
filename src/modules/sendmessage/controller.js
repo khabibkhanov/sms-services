@@ -1,26 +1,49 @@
 const model = require('./model.js')
 const { verify } = require('../../lib/jwt.js');
 
-// GET request handler for retrieving messages
 const GET = async (req, res) => {
-    const vtoken = verify(req?.headers?.accesstoken)
-    
-  // Retrieve the messages from the database using the access token provided in the request headers
-  let message = await model.getMessages(vtoken);
-  
-  // If messages are retrieved successfully, return a success response with the messages
-  if(message) {
-    res.status(200).send(message)
-  }
-  // If there is an error while retrieving the messages, return a failure response
-  else {
-    res.status(400).send({
+  try {
+    const { accesstoken } = req.headers;
+    const { page = 1, limit = 10 } = req.query;
+
+    // Verify the access token
+    const vtoken = verify(accesstoken);
+
+    // Retrieve the messages from the database using the access token and pagination parameters
+    const result = await model.getMessages(vtoken.user_number, page, limit);
+
+    if (result.success) {
+      const { data, totalMessages } = result;
+      const totalPages = Math.ceil(totalMessages / limit);
+
+      const response = {
+        status: 200,
+        success: true,
+        data: data,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: totalPages,
+          totalMessages: totalMessages,
+        },
+      };
+
+      res.status(200).send(response);
+    } else {
+      res.status(400).send({
         status: 400,
         success: false,
-        data: req.headers
-    })
+        message: result.message,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      status: 500,
+      success: false,
+      message: 'Internal Server Error',
+    });
   }
-}
+};
 
 // POST request handler for sending a message
 const POST = async (req, res) => {
@@ -38,8 +61,10 @@ const POST = async (req, res) => {
 
 // DELETE request handler for deleting a message
 const DELETE = async (req, res) => {
+  const vtoken = verify(req?.headers?.accesstoken)
+
   // Delete the message with the given message_id using the access token provided in the request headers
-  let isDelete = await model.deleteMessage(req?.params?.message_id, req?.headers?.access_token)
+  let isDelete = await model.deleteOneMessage(req?.params?.message_id, vtoken)
   
   // If the message is deleted successfully, return a success response with the deleted message
   if (isDelete) {

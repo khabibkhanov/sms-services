@@ -12,8 +12,17 @@ const GETUSER =`
 const GETMESSAGES = `
     SELECT sms_id, sender, sms_text, sms_created_at
     FROM sms
+    WHERE reciever_number = $1 AND sms_deleted_at = false
+    ORDER BY sms_created_at DESC
+    LIMIT $2 OFFSET $3;
+`;
+
+const GETTOTALMESSAGES = `
+    SELECT COUNT(*) as total_count
+    FROM sms
     WHERE reciever_number = $1 AND sms_deleted_at = false;
-`
+`;
+
 
 const DELETEMESSAGE = `
     UPDATE sms 
@@ -36,5 +45,6 @@ module.exports = {
 	SENDMESSAGE,
     GETUSER,
     GETMESSAGES,
-    DELETEMESSAGE
+    DELETEMESSAGE,
+    GETTOTALMESSAGES
 }

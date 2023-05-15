@@ -1,36 +1,50 @@
 const axios = require('axios');
 
+const url = 'http://sms-service.gamespot.uz:35000/api/sendmessage';
 const numbers = [
-  { number: '998909340450', sender: 'test2', sms_text: 'code: 123' },
-  { number: '998913574568', sender: 'test2', sms_text: 'code: 5456' },
-  { number: '998911552624', sender: 'test2', sms_text: 'code: 123' },
-  { number: '998909098828', sender: 'test2', sms_text: 'code: 123' },
-  { number: '998900319921', sender: 'test2', sms_text: 'code: 123' },
-  { number: '998996842882', sender: 'test2', sms_text: 'code: 123' },
-  { number: '998901672133', sender: 'test2', sms_text: 'code: 123' },
+  '998913574568',
+  // '998911552624'
 ];
 
-const url = 'http://sms-service.gamespot.uz:35000/api/sendmessage';
-const headers = {
-  'Content-Type': 'application/json',
-};
-
-// Function to send a message to a single number
-async function sendMessage(number, sender, sms_text) {
-  const payload = { number, sender, sms_text };
+async function sendRequests() {
   try {
-    const response = await axios.post(url, payload, { headers });
-    if (response.data.sms_id) {
-        console.log(`Message sent to ${number}, ${response.data.sms_id}` );
-    } else (
-        console.log(`Message can't sent to ${number}, because ${response.data}`)
-    )
+    const codes = Array.from({ length: 50 }, () => (Math.floor(Math.random() * 9000) + 1000).toString().substring(0, 4));
+    // const random4DigitNumber = ;
+    // console.log(random4DigitNumber);
+    
+    const senders = Array.from({ length: 5 }, () => Math.floor(1000 + Math.random() * 9000));
+
+    const responses = await Promise.all(
+      senders.flatMap(sender =>
+        numbers.flatMap(number =>
+          codes.map(code => {
+            const requestBody = {
+              number: number,
+              sender: 'sender-' + sender.toString(),
+              sms_text: `your code is: ${code}`
+            };
+
+            return axios.post(url, requestBody, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+          })
+        )
+      )
+    );
+
+    responses.forEach((response, index) => {
+      const isSuccess = response.status === 200;
+      if (response.data.error) {
+        console.log(response.data.error);
+      }
+      console.log(response.data);
+      console.log(`Request ${index + 1}: ${isSuccess ? 'Success' : 'Failure'}`);
+    });
   } catch (error) {
-    console.error(`Failed to send message to ${number}`);
+    console.error('Error:', error);
   }
 }
 
-// Send messages to all numbers in the array
-numbers.forEach(({ number, sender, sms_text }) => {
-  sendMessage(number, sender, sms_text);
-});
+sendRequests();

@@ -1,60 +1,48 @@
 const { fetch, fetchAll } = require('../../lib/postgres')
-const { GETUSER, SENDMESSAGE, GETMESSAGES, DELETEMESSAGE } = require('./query')
+const { GETUSER, SENDMESSAGE, GETMESSAGES, DELETEMESSAGE, GETTOTALMESSAGES } = require('./query')
 const { SendSms } = require('../../lib/send')
 const { firebaseAdmin } = require('../../config')
 
-// Define a function to get all messages for a given user
-const getMessages = async ({user_number}) => {
-    try {
-        console.log('props')
-    console.log(user_number)
-        // Get all messages for the user
-        let messages = await fetchAll(GETMESSAGES, user_number);
-    
-        if (messages) {
-            // Create an object to store the messages grouped by sender
-            const groupedMessages = {};
+const getMessages = async (userNumber, page, limit) => {
+  try {
+    const offset = (page - 1) * limit;
+    const messages = await fetchAll(GETMESSAGES, userNumber, limit, offset);
+    const [{ total_count: totalMessages }] = await fetch(GETTOTALMESSAGES, userNumber);
 
-            // Iterate over the messages and group them by sender
-            for (let i = 0; i < messages.length; i++) {
-                const { sms_id, sender, sms_text, sms_created_at } = messages[i];
+    if (messages.length > 0) {
+      const groupedMessages = {};
 
-                if (!groupedMessages[sender]) {
-                    // If this is the first message from this sender, create an array to store the messages
-                    groupedMessages[sender] = [];
-                }
-                // Add the message to the array for the sender
-                groupedMessages[sender].push({
-                    sms_id,
-                    sms_text,
-                    sms_created_at
-                });
-            }
-                
-            // Convert the object to an array of objects, each with a "sender" key and a "messages" key
-            const groupedMessagesArray = Object.keys(groupedMessages).map(sender => ({
-                sender,
-                messages: groupedMessages[sender]
-            }));
-        
-            // Return the grouped messages
-            return {
-                status: 200,
-                success: true,
-                data: groupedMessagesArray
-            };
-        } else {
-            // If no messages were found for the user, return an error message
-            throw 'Invalid Token';
+      messages.forEach((message) => {
+        const { sender, ...messageData } = message;
+
+        if (!groupedMessages[sender]) {
+          groupedMessages[sender] = [];
         }
-    } catch (error) {
-        // If there was an error, return an error message
-        return {
-            status: 400,
-            success: false,
-            data: error
-        };
+
+        groupedMessages[sender].push(messageData);
+      });
+
+      const groupedMessagesArray = Object.entries(groupedMessages).map(([sender, messages]) => ({
+        sender,
+        messages,
+      }));
+
+      return {
+        status: 200,
+        success: true,
+        data: groupedMessagesArray,
+        totalMessages: totalMessages,
+      };
+    } else {
+      throw new Error('No messages found');
     }
+  } catch (error) {
+    return {
+      status: 400,
+      success: false,
+      message: error.message || 'Error retrieving messages',
+    };
+  }
 };
 
 // This function sends a message to the specified number, using FCM if possible
@@ -142,11 +130,8 @@ const sendMessage = async ({number, sms_text, sender}, wss) => {
 }
 
 // This function deletes a message from the database
-const deleteMessage = async (message_id, number) => {
+const deleteOneMessage = async (message_id, user_number) => {
     try {
-        // Verify the token
-        const user_number= verify(number)
-    
         // Parse the message ID into an integer
         sms_id = parseInt(message_id)
     
@@ -180,5 +165,5 @@ const deleteMessage = async (message_id, number) => {
 module.exports = {
     getMessages,
     sendMessage,
-    deleteMessage,
+    deleteOneMessage,
 }

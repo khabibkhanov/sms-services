@@ -2,6 +2,7 @@ const express = require('express');
 const ws = require('ws');
 const winston = require('winston');
 const expressWinston = require('express-winston');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -17,6 +18,13 @@ const wss = new ws.Server({ noServer: true });
 app.locals.websockets = {
   wss,
 };
+
+// Create a rate limiter middleware
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100, // Max number of requests allowed in the window
+  message: 'Too many requests from this IP, please try again later.',
+});
 
 // Use the built-in Express middleware for parsing JSON data
 app.use(express.json());
@@ -49,7 +57,7 @@ app.get('/', function (req, res) {
 
 // Load external modules for handling various routes and functionality
 const modules = require('./src/modules');
-app.use(modules);
+app.use(modules, limiter);
 
 // Override the default console log method to use a Winston logger that logs to a file
 console.log = function () {
