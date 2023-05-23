@@ -21,8 +21,8 @@ app.locals.websockets = {
 
 // Create a rate limiter middleware
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // Max number of requests allowed in the window
+  windowMs: 1000, // 1 minute
+  max: 1, // Max number of requests allowed in the window
   message: 'Too many requests from this IP, please try again later.',
 });
 

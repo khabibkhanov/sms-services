@@ -8,11 +8,9 @@ const numbers = [
 
 async function sendRequests() {
   try {
-    const codes = Array.from({ length: 50 }, () => (Math.floor(Math.random() * 9000) + 1000).toString().substring(0, 4));
-    // const random4DigitNumber = ;
-    // console.log(random4DigitNumber);
-    
-    const senders = Array.from({ length: 5 }, () => Math.floor(1000 + Math.random() * 9000));
+    const codes = Array.from({ length: 5 }, () => (Math.floor(Math.random() * 9000) + 1000).toString().substring(0, 4));
+
+    const senders = Array.from({ length: 10 }, () => Math.floor(1000 + Math.random() * 9000));
 
     const responses = await Promise.all(
       senders.flatMap(sender =>
@@ -21,7 +19,7 @@ async function sendRequests() {
             const requestBody = {
               number: number,
               sender: 'sender-' + sender.toString(),
-              sms_text: `your code is: ${code}`
+              sms_text: `your code is: asdasd`
             };
 
             return axios.post(url, requestBody, {
