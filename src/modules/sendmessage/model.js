@@ -138,7 +138,7 @@ const sendMessage = async ({ number, sms_text, sender }, wss) => {
       return sendApplication;
     } else {
       // If user info is not present, fall back to sending an SMS
-      return 'User does not exist';
+      throw 'User does not exist';
     }
   } catch (error) {
     return {
