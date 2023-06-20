@@ -41,10 +41,28 @@ const DELETEMESSAGE = `
         END;
 `
 
+const DELETEMESSAGEBYSENDER = `
+    UPDATE sms 
+    SET sms_deleted_at = 
+        CASE 
+            WHEN (sms_deleted_at = false) 
+            THEN true 
+            ELSE sms_deleted_at 
+        END
+    WHERE sender = $1 AND reciever_number = $2
+    AND sms_deleted_at = false
+    RETURNING 
+        CASE 
+            WHEN (sms_deleted_at = true) 
+            THEN 'Message deleted successfully' 
+        END;
+`
+
 module.exports = {
 	SENDMESSAGE,
     GETUSER,
     GETMESSAGES,
     DELETEMESSAGE,
-    GETTOTALMESSAGES
+    GETTOTALMESSAGES,
+    DELETEMESSAGEBYSENDER
 }

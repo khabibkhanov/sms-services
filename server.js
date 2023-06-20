@@ -88,6 +88,7 @@ server.on('upgrade', (request, socket, head) => {
 wss.on('listening', () => {
   console.log(`WebSocket server listening on port ${process.env.PORT || 35000}`);
 });
+
 wss.on('error', error => {
   console.error(`WebSocket server error: ${error}`);
 });

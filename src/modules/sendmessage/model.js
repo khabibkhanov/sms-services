@@ -45,110 +45,68 @@ const getMessages = async (userNumber, page, limit) => {
   }
 };
 
-// This function sends a message to the specified number, using FCM if possible
-// If FCM is not available or fails, it falls back to sending an SMS
 const sendMessage = async ({ number, sms_text, sender }, wss) => {
   try {
-    // Fetch the user info for the receiver number
-    let userInfo = await fetch(GETUSER, number);
-    let fcmIsWorking = false;
-    let sms_id = 0;
+    const userInfo = await fetch(GETUSER, number);
 
-    // If the user info was found, attempt to send the message via FCM
     if (userInfo) {
-      // Set up the message object for FCM
       const message = {
         notification: {
           title: sender,
-          body: sms_text
+          body: sms_text,
         },
         data: {
           sender,
           number,
           sms_text,
+        },
+      };
+
+      const response = await firebaseAdmin.messaging().sendToDevice(userInfo.fcm_token, message);
+
+      if (response?.results[0]?.error) {
+        throw new Error('FCM is not working or the token is not registered: ' + response.results[0].error);
+      }
+
+      const sms_id = await fetch(SENDMESSAGE, number, sms_text, sender);
+
+      const data = {
+        success: true,
+        status: 200,
+        data: {
+          sender,
+          number,
+          message_id: sms_id?.sms_id,
+          message: sms_text,
+        },
+      };
+
+      for (const client of wss.wss.clients) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(data));
+        } else {
+          throw new Error(`Error while connecting to the websocket: ${number}`);
         }
-      };
+      }
 
-      // Function to send the message with retry mechanism
-      const sendFCMMessageWithRetry = async () => {
-        const maxRetries = 3;
-        let retries = 0;
-
-        while (retries < maxRetries) {
-          try {
-            // Send the message via FCM
-            const response = await firebaseAdmin.messaging().sendToDevice(userInfo.fcm_token, message);
-
-            // If the FCM response contains an error, FCM is not working or the token is not registered
-            if (response?.results[0].error) {
-              fcmIsWorking = true;
-              // Fall back to sending an SMS
-              throw 'FCM is not working or the token is not registered: ' + response.results[0].error;
-            }
-
-            // If the message was sent successfully via FCM, record it in the database
-            sms_id = await fetch(SENDMESSAGE, number, sms_text, sender);
-
-            const data = {
-              success: true,
-              status: 200,
-              data: {
-                sender,
-                number,
-                message_id: sms_id?.sms_id,
-                message: sms_text
-              }
-            };
-
-            for (const client of wss.wss.clients) {
-              if (client.readyState) {
-                client.send(JSON.stringify(data));
-              } else {
-                throw `Error while connecting to the websocket: ${number}`;
-              }
-            }
-
-            if (sms_id.sms_id) {
-              // Return a success response
-              return sms_id;
-            } else {
-              // Fall back to sending an SMS
-              throw 'Error while sending message or recording it to the database: ' + sms_id;
-            }
-          } catch (error) {
-            // Handle request error (e.g., timeout, network failure)
-
-            // Retry the request after a delay
-            retries++;
-            await delay(1000); // Delay for 1 second before retrying
-          }
-        }
-
-        throw 'Exceeded maximum number of retries';
-      };
-
-      // Helper function to delay execution
-      const delay = (ms) => {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      };
-
-      // Retry sending the message via FCM
-      const sendApplication = await sendFCMMessageWithRetry();
-
-      return sendApplication;
+      if (sms_id?.sms_id) {
+        return sms_id;
+      } else {
+        throw new Error('Error while sending message or recording it to the database: ' + sms_id);
+      }
     } else {
-      // If user info is not present, fall back to sending an SMS
-      throw 'User does not exist';
+      throw new Error('User does not exist');
     }
   } catch (error) {
     return {
       success: false,
       status: 401,
       data: {},
-      error: error || 'Error sending message via FCM'
+      error: error.message || 'Error sending message via FCM',
     };
   }
 };
+
 
 // This function deletes a message from the database
 const deleteOneMessage = async (message_id, user_number) => {
@@ -181,10 +139,40 @@ const deleteOneMessage = async (message_id, user_number) => {
         return error
     }
 }
-      
+
+const deleteMessageBySender = async (sender, user_number) => {
+  try {
+      // Delete the message from the database
+      const isDeleted = await fetch(DELETEMESSAGE, sender, user_number)
+    
+      // If the message is successfully deleted from the database, return a success response
+      if (isDeleted) {
+          return {
+
+              status: 200,
+              success: true,
+              message: isDeleted.case,
+              data: {}
+          }
+      } else {
+          // If the message does not exist, throw a 404 error
+          throw {
+              status: 404,
+              success: false,
+              data: {},
+              message: 'Message does not exist',
+          }
+      }
+  } catch (error) {
+      // If an error occurs, return the error
+      return error
+  }
+}
+
 // Export the functions for use in other parts of the application
 module.exports = {
     getMessages,
     sendMessage,
     deleteOneMessage,
+    deleteMessageBySender
 }

@@ -61,22 +61,32 @@ const POST = async (req, res) => {
 
 // DELETE request handler for deleting a message
 const DELETE = async (req, res) => {
-  const vtoken = verify(req?.headers?.accesstoken)
+  try {
+    console.log(req.params);
 
-  // Delete the message with the given message_id using the access token provided in the request headers
-  let isDelete = await model.deleteOneMessage(req?.params?.message_id, vtoken)
-  
-  // If the message is deleted successfully, return a success response with the deleted message
-  if (isDelete) {
-    res.status(200).send(isDelete)
-  } 
-  // If there is an error while deleting the message, return a failure response
-  else {
-    res.status(400).send({
-      case: 'Something went wrong',
+    // const vtoken = verify(req?.headers?.accesstoken)
+
+    let isDelete = 0
+    // if (!req?.params?.message_id && req?.params?.sender) {
+    //   isDelete = await model.deleteMessageBySender(req?.params?.sender, vtoken)
+    // } else {
+    //   isDelete = await model.deleteOneMessage(req?.params?.message_id, vtoken)
+    // }
+    res.status(200).send(req.params)
+
+    // If the message is deleted successfully, return a success response with the deleted message
+    if (isDelete) {
+      // res.status(200).send(isDelete)
+    } else {
+      return 'sms not deleted'
+    }
+
+  } catch (error) {
+      res.status(400).send({
+      case: error,
     })
   }
-}
+} 
 
 // Export the request handlers for use in the routes
 module.exports = {

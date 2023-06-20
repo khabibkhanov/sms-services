@@ -1,5 +1,5 @@
 {
-  "name": "sms.meta-hi.uz",
+  "name": "sms-service.gamespot.uz",
   "version": "1.0.0",
   "description": "sms service provider for messaging services",
   "main": "server.js",

