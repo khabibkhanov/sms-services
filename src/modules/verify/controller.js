@@ -22,8 +22,7 @@ const POST = async (req, res) => { // Defining an asynchronous function 'POST' t
                     message: 'Logged in successfully'
                 })
             } else {
-                throw   verified + 'Error'
-
+                throw  'cannot connect or write data to database'
             }
            
         } else {

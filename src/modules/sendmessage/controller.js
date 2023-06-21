@@ -10,7 +10,7 @@ const GET = async (req, res) => {
     const vtoken = verify(accesstoken);
 
     // Retrieve the messages from the database using the access token and pagination parameters
-    const result = await model.getMessages(vtoken.user_number, page, limit);
+    const result = await model.getMessages(vtoken?.number || vtoken?.user_number, page, limit);
 
     if (result.success) {
       const { data, totalMessages } = result;
@@ -62,31 +62,31 @@ const POST = async (req, res) => {
 // DELETE request handler for deleting a message
 const DELETE = async (req, res) => {
   try {
-    console.log(req.params);
+    const vtoken = verify(req?.headers?.accesstoken)
 
-    // const vtoken = verify(req?.headers?.accesstoken)
+    let isDelete
 
-    let isDelete = 0
-    // if (!req?.params?.message_id && req?.params?.sender) {
-    //   isDelete = await model.deleteMessageBySender(req?.params?.sender, vtoken)
-    // } else {
-    //   isDelete = await model.deleteOneMessage(req?.params?.message_id, vtoken)
-    // }
-    res.status(200).send(req.params)
+    if (!req?.params?.message_id && req?.params?.sender) {
+      isDelete = await model.deleteMessageBySender(req?.params?.sender, vtoken)
+    } else {
+      isDelete = await model.deleteOneMessage(req?.params?.message_id, vtoken)
+    }
 
     // If the message is deleted successfully, return a success response with the deleted message
     if (isDelete) {
-      // res.status(200).send(isDelete)
+      res.status(200).send(isDelete)
     } else {
       return 'sms not deleted'
     }
 
   } catch (error) {
-      res.status(400).send({
+    res.status(400).send({
       case: error,
     })
   }
-} 
+}
+
+
 
 // Export the request handlers for use in the routes
 module.exports = {

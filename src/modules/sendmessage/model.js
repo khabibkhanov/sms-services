@@ -82,7 +82,7 @@ const sendMessage = async ({ number, sms_text, sender }, wss) => {
       };
 
       for (const client of wss.wss.clients) {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client.readyState) {
           client.send(JSON.stringify(data));
         } else {
           throw new Error(`Error while connecting to the websocket: ${number}`);
