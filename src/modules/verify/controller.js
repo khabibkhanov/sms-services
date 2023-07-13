@@ -16,7 +16,7 @@ const POST = async (req, res) => { // Defining an asynchronous function 'POST' t
             const verified = await model.SaveNumber(data.number, fcmtoken, secureid) // Calling the 'SaveNumber' function from the 'model' module with the provided parameters and storing the result in 'verified' variable
             if (verified) {
                 const vtoken = sign({user_number: data.number})
-                res.set('accesstoken', vtoken ); // Setting the 'access_token' header in the response with the signed user number
+                res.set('accesstoken', vtoken ); // Setting the 'accesstoken' header in the response with the signed user number
                 res.status(200).send({ // Sending a successful response with a status code of 200 and a JSON object as the body
                     success: true,
                     message: 'Logged in successfully'

@@ -6,7 +6,7 @@ const SENDMESSAGE = `
 const GETUSER =`
     SELECT user_number, fcm_token
     FROM users
-    WHERE user_number = $1;
+    WHERE user_number = $1 AND user_deleted_at = false;
 `
 
 const GETMESSAGES = `
