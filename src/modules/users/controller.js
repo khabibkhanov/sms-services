@@ -9,12 +9,19 @@ const GET = async (req, res) => {
 const DELETE = async (req, res) => {
     try {
         let vtoken = verify(req?.headers?.accesstoken)
-        let user = await validate.deleteUser(vtoken?.number || vtoken?.user_number)
-        if (user) {
-            res.send('user deleted')
-        }
+        let response = await validate.deleteUser(vtoken?.number || vtoken?.user_number)
+        
+        res.send({
+            status: 200,
+            success: true,
+            message: 'user deleted'
+        })
     } catch (error) {
-        res.send(error)
+        res.send({
+            status: 400,
+            success: false,
+            message: error.message
+        })
     }
 }
 

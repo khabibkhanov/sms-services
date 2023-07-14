@@ -8,8 +8,12 @@ const getUsers = async () => {
 
 const deleteUser = async (number) => {
 	try {
-		let user = await fetchAll(DELETE_USER, number)
-		return user
+		let done = await fetchAll(DELETE_USER, number)
+		if (!done) {
+		    return true
+		} else {
+		    throw done
+		}
 	} catch (error) {
 		return error
 	}
