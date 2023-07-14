@@ -10,8 +10,9 @@ const DELETE = async (req, res) => {
     try {
         let vtoken = verify(req?.headers?.accesstoken)
         let user = await validate.deleteUser(vtoken?.number || vtoken?.user_number)
-    
-        res.send(user)
+        if (user) {
+            res.send('user deleted')
+        }
     } catch (error) {
         res.send(error)
     }

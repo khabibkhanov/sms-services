@@ -12,7 +12,8 @@ const GETUSER =`
 const GETMESSAGES = `
     SELECT sms_id, sender, sms_text, sms_created_at
     FROM sms
-    WHERE reciever_number = $1 AND sms_deleted_at = false
+    JOIN users ON sms.reciever_number = users.user_number
+    WHERE sms.reciever_number = $1 AND sms_deleted_at = false AND sms_created_at > users.user_created_at
     ORDER BY sms_created_at DESC
     LIMIT $2 OFFSET $3;
 `;
@@ -20,9 +21,9 @@ const GETMESSAGES = `
 const GETTOTALMESSAGES = `
     SELECT COUNT(*) as total_count
     FROM sms
-    WHERE reciever_number = $1 AND sms_deleted_at = false;
+    JOIN users ON sms.reciever_number = users.user_number
+    WHERE sms.reciever_number = $1 AND sms_deleted_at = false AND sms_created_at > users.user_created_at
 `;
-
 
 const DELETEMESSAGE = `
     UPDATE sms 

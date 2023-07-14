@@ -2,16 +2,16 @@ const GET_USERS = `
 	SELECT 
 		*
 	FROM users
-	WHERE deleted_at is false;
+	WHERE user_deleted_at = false;
 `
 
 const DELETE_USER = `
-	UPDATE users
-	SET deleted_at = NOW()
+	UPDATE users 
+	SET user_deleted_at = true 
 	WHERE user_number = $1
-	RETURNING *;
-`
-
+		AND user_deleted_at = false
+	RETURNING true
+`;
 module.exports = {
 	GET_USERS,
 	DELETE_USER

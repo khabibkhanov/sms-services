@@ -11,11 +11,12 @@ const SaveNumber = async (number, fcm_token, secure_id) => { // Defining an asyn
     if (!userInfo) { // Checking if 'userInfo' is falsy
       throw "cannot login user" // Throwing an error if 'userInfo' is falsy
     } else {
-      // const isAdd = await sendNumberToSmsBase(number)
-      return 'isAdd'
+      const isAdd = await sendNumberToSmsBase(number)
+      return isAdd
     }
   } catch (error) { // Catching any errors thrown by the try block
-    return error || "error "// Returning the error object
+    console.log(error);
+    return error|| "error "// Returning the error object
   }
 }
 
